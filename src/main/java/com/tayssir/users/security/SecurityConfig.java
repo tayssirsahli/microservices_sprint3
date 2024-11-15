@@ -23,53 +23,67 @@ import jakarta.servlet.http.HttpServletRequest;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-	
 	@Autowired
- 	UserDetailsService userDetailsService;
- 	
- 	@Autowired
-	BCryptPasswordEncoder bCryptPasswordEncoder;
- 	
- 	@Autowired
- 	AuthenticationManager authMgr;
-	
-	
- 	@Bean
-	public AuthenticationManager authManager(HttpSecurity http, 
-			BCryptPasswordEncoder bCryptPasswordEncoder, 
-			UserDetailsService userDetailsService) 
-	  throws Exception {
-	    return http.getSharedObject(AuthenticationManagerBuilder.class)
-	      .userDetailsService(userDetailsService)
-	      .passwordEncoder(bCryptPasswordEncoder)
-	      .and()
-	      .build();
-	}
- 	
- 	 @Bean
-     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception { 
-		    http.csrf().disable()
-		    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-					.cors().configurationSource(new CorsConfigurationSource() {
-						@Override
-						public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-							CorsConfiguration config = new CorsConfiguration();
+	AuthenticationManager authMgr;
 
-							config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
-							config.setAllowedMethods(Collections.singletonList("*"));
-							config.setAllowCredentials(true);
-							config.setAllowedHeaders(Collections.singletonList("*"));
-							config.setExposedHeaders(Arrays.asList("Authorization"));
-							config.setMaxAge(3600L);
-							return config;
-						}
-					}).and()
-		                        .authorizeHttpRequests()
-		                        .requestMatchers("/login").permitAll()
-		                        .requestMatchers("/all").hasAnyAuthority("ADMIN")
-		                        .anyRequest().authenticated().and()
-		                        .addFilterBefore(new JWTAuthenticationFilter (authMgr),UsernamePasswordAuthenticationFilter.class)
-		                        .addFilterBefore(new JWTAuthorizationFilter(),UsernamePasswordAuthenticationFilter.class);
-		 return http.build();
+	@Bean
+	public AuthenticationManager authManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder,
+			UserDetailsService userDetailsService) throws Exception {
+		return http.getSharedObject(AuthenticationManagerBuilder.class).userDetailsService(userDetailsService)
+				.passwordEncoder(bCryptPasswordEncoder).and().build();
+	}
+
+//	@Bean
+//	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//		http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+//
+//				.cors().configurationSource(new CorsConfigurationSource() {
+//					@Override
+//					public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+//						CorsConfiguration config = new CorsConfiguration();
+//
+//						config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+//						config.setAllowedMethods(Collections.singletonList("*"));
+//						config.setAllowCredentials(true);
+//						config.setAllowedHeaders(Collections.singletonList("*"));
+//						config.setExposedHeaders(Arrays.asList("Authorization"));
+//						config.setMaxAge(3600L);
+//						return config;
+//					}
+//				}).and()
+//
+//				.authorizeHttpRequests().requestMatchers("/login", "/register/**", "/verifyEmail").permitAll()
+//				.requestMatchers("/all").hasAuthority("ADMIN").anyRequest().authenticated().and()
+//				.addFilterBefore(new JWTAuthenticationFilter(authMgr), UsernamePasswordAuthenticationFilter.class);
+//				
+//
+//		return http.build();
+//
+//	}
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+				.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
+					@Override
+					public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+						CorsConfiguration cors = new CorsConfiguration();
+
+						cors.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+						cors.setAllowedMethods(Collections.singletonList("*"));
+						cors.setAllowCredentials(true);
+						cors.setAllowedHeaders(Collections.singletonList("*"));
+
+						cors.setExposedHeaders(Collections.singletonList("Authorization"));
+						cors.setMaxAge(3600L);
+						return cors;
+					}
+				})).authorizeHttpRequests()
+
+				.requestMatchers("/login", "/register/**", "/verifyEmail/**").permitAll().requestMatchers("/all")
+				.hasAuthority("ADMIN").anyRequest().authenticated().and()
+				.addFilterBefore(new JWTAuthenticationFilter(authMgr), UsernamePasswordAuthenticationFilter.class);
+
+		return http.build();
+
 	}
 }

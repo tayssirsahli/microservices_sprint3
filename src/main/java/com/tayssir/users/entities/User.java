@@ -29,8 +29,18 @@ public class User {
 
     private String password;
     private Boolean enabled;
+    private String email;
 
-    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    public String getEmail() {
+		return email;
+	}
+
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	@ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_role",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -39,13 +49,14 @@ public class User {
     private List<Role> roles;
 
   
-	public User(Long user_id, String username, String password, Boolean enabled, List<Role> roles) {
+	public User(Long user_id, String username, String password, Boolean enabled, List<Role> roles,String email) {
 	
 		this.user_id = user_id;
 		this.username = username;
 		this.password = password;
 		this.enabled = enabled;
 		this.roles = roles;
+		this.email =email;
 	}
 
 
@@ -53,6 +64,10 @@ public class User {
 		super();
 		
 	}
+
+
+	
+	
 
 
 	public String getUsername() {

@@ -12,27 +12,27 @@ import org.springframework.stereotype.Service;
 import com.tayssir.users.entities.User;
 import com.tayssir.users.service.Userservice;
 
-
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 	@Autowired
 	Userservice userService;
-	
-@Override
-public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-	User user = userService.findUserByUsername(username);
-	
-if (user==null) 
-    throw new UsernameNotFoundException("Utilisateur introuvable !");
-	
-	List<GrantedAuthority> auths = new ArrayList<>();
-	
-	 user.getRoles().forEach(role -> {
-		 GrantedAuthority auhority = new SimpleGrantedAuthority(role.getRole());
-		 auths.add(auhority);
-	 });
-	
-	return new org.springframework.security.core.
-			userdetails.User(user.getUsername(),user.getPassword(),auths);
-  }
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		User user = userService.findUserByUsername(username);
+
+		if (user == null)
+			throw new UsernameNotFoundException("Utilisateur introuvable !");
+
+		List<GrantedAuthority> auths = new ArrayList<>();
+
+		user.getRoles().forEach(role -> {
+			GrantedAuthority auhority = new SimpleGrantedAuthority(role.getRole());
+			auths.add(auhority);
+		});
+
+		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+				user.getEnabled(), true, true, true, auths);
+
+	}
 }
